@@ -1,11 +1,11 @@
 <Project>
 
   <PropertyGroup>
-    <FrameworkVersion>6.0.0</FrameworkVersion>
-    <ExtensionsVersion>6.0.0</ExtensionsVersion>
-    <EntityFrameworkVersion>6.0.0</EntityFrameworkVersion>
+    <FrameworkVersion>8.0.2</FrameworkVersion>
+    <ExtensionsVersion>8.0.2</ExtensionsVersion>
+    <EntityFrameworkVersion>8.0.2</EntityFrameworkVersion>
     
-    <IdentityServerVersion>6.0.0-*</IdentityServerVersion>
+    <IdentityServerVersion>6.0.3-*</IdentityServerVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,7 +43,7 @@
     <PackageReference Update="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.23.1" />
     <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
     <PackageReference Update="System.Security.Principal.Windows" Version="4.7.0" />
-    <PackageReference Update="AutoMapper" Version="[10.0.0,11.0)" />
+    <PackageReference Update="AutoMapper" Version="12.0.1" />
     
     <!--microsoft asp.net core -->
     <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(FrameworkVersion)" />
