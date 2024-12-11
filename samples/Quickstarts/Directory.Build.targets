@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <AspNetVersion>6.0.0</AspNetVersion>
+        <AspNetVersion>8.0.0</AspNetVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,7 +16,7 @@
         <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(AspNetVersion)" />
         <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="$(AspNetVersion)" />
 
-        <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
+        <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="8.0.0" />
 
         <PackageReference Update="Serilog.AspNetCore" Version="3.2.0" />
     </ItemGroup>
