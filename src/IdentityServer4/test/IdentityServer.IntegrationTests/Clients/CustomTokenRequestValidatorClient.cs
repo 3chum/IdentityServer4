@@ -26,8 +26,7 @@ namespace IdentityServer.IntegrationTests.Clients
             var val = new TestCustomTokenRequestValidator();
             Startup.CustomTokenRequestValidator = val;
 
-            var builder = new WebHostBuilder()
-                .UseStartup<Startup>();
+            var builder = new WebHostBuilder().UseStartup<Startup>();
             var server = new TestServer(builder);
 
             _client = server.CreateClient();
@@ -36,14 +35,15 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Client_credentials_request_should_contain_custom_response()
         {
-            var response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = TokenEndpoint,
-
-                ClientId = "client",
-                ClientSecret = "secret",
-                Scope = "api1"
-            });
+            var response = await _client.RequestClientCredentialsTokenAsync(
+                new ClientCredentialsTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "client",
+                    ClientSecret = "secret",
+                    Scope = "api1"
+                }
+            );
 
             var fields = GetFields(response);
             fields.Should().Contain("custom", "custom");
@@ -52,17 +52,17 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Resource_owner_credentials_request_should_contain_custom_response()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-
-                ClientId = "roclient",
-                ClientSecret = "secret",
-                Scope = "api1",
-
-                UserName = "bob",
-                Password = "bob"
-            });
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    Scope = "api1",
+                    UserName = "bob",
+                    Password = "bob"
+                }
+            );
 
             var fields = GetFields(response);
             fields.Should().Contain("custom", "custom");
@@ -71,26 +71,27 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Refreshing_a_token_should_contain_custom_response()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    Scope = "api1 offline_access",
+                    UserName = "bob",
+                    Password = "bob"
+                }
+            );
 
-                ClientId = "roclient",
-                ClientSecret = "secret",
-                Scope = "api1 offline_access",
-
-                UserName = "bob",
-                Password = "bob"
-            });
-
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                RefreshToken = response.RefreshToken
-            });
+            response = await _client.RequestRefreshTokenAsync(
+                new RefreshTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    RefreshToken = response.RefreshToken
+                }
+            );
 
             var fields = GetFields(response);
             fields.Should().Contain("custom", "custom");
@@ -99,20 +100,20 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Extension_grant_request_should_contain_custom_response()
         {
-            var response = await _client.RequestTokenAsync(new TokenRequest
-            {
-                Address = TokenEndpoint,
-                GrantType = "custom",
-
-                ClientId = "client.custom",
-                ClientSecret = "secret",
-
-                Parameters =
+            var response = await _client.RequestTokenAsync(
+                new TokenRequest
                 {
-                    { "scope", "api1" },
-                    { "custom_credential", "custom credential"}
+                    Address = TokenEndpoint,
+                    GrantType = "custom",
+                    ClientId = "client.custom",
+                    ClientSecret = "secret",
+                    Parameters =
+                    {
+                        { "scope", "api1" },
+                        { "custom_credential", "custom credential" }
+                    }
                 }
-            });
+            );
 
             var fields = GetFields(response);
             fields.Should().Contain("custom", "custom");
@@ -120,7 +121,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
         private Dictionary<string, object> GetFields(TokenResponse response)
         {
-            var jsonRaw = response.Json.GetRawText();
+            var jsonRaw = response.Json?.GetRawText();
             return JObject.Parse(jsonRaw).ToObject<Dictionary<string, object>>();
         }
     }

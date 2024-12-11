@@ -28,8 +28,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
         public CustomTokenResponseClients()
         {
-            var builder = new WebHostBuilder()
-                .UseStartup<StartupWithCustomTokenResponses>();
+            var builder = new WebHostBuilder().UseStartup<StartupWithCustomTokenResponses>();
             var server = new TestServer(builder);
 
             _client = server.CreateClient();
@@ -38,16 +37,17 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Resource_owner_success_should_return_custom_response()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                UserName = "bob",
-                Password = "bob",
-                Scope = "api1"
-            });
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    UserName = "bob",
+                    Password = "bob",
+                    Scope = "api1"
+                }
+            );
 
             // raw fields
             var fields = GetFields(response);
@@ -73,14 +73,12 @@ namespace IdentityServer.IntegrationTests.Clients
             responseDto.nested.string_value.Should().Be(dto.nested.string_value);
             responseDto.nested.int_value.Should().Be(dto.nested.int_value);
 
-
             // token client response
             response.IsError.Should().Be(false);
             response.ExpiresIn.Should().Be(3600);
             response.TokenType.Should().Be("Bearer");
             response.IdentityToken.Should().BeNull();
             response.RefreshToken.Should().BeNull();
-            
 
             // token content
             var payload = GetPayload(response);
@@ -103,16 +101,17 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Resource_owner_failure_should_return_custom_error_response()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                UserName = "bob",
-                Password = "invalid",
-                Scope = "api1"
-            });
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    UserName = "bob",
+                    Password = "invalid",
+                    Scope = "api1"
+                }
+            );
 
             // raw fields
             var fields = GetFields(response);
@@ -138,7 +137,6 @@ namespace IdentityServer.IntegrationTests.Clients
             responseDto.nested.string_value.Should().Be(dto.nested.string_value);
             responseDto.nested.int_value.Should().Be(dto.nested.int_value);
 
-
             // token client response
             response.IsError.Should().Be(true);
             response.Error.Should().Be("invalid_grant");
@@ -152,21 +150,16 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Extension_grant_success_should_return_custom_response()
         {
-            var response = await _client.RequestTokenAsync(new TokenRequest
-            {
-                Address = TokenEndpoint,
-                GrantType = "custom",
-
-                ClientId = "client.custom",
-                ClientSecret = "secret",
-
-                Parameters =
+            var response = await _client.RequestTokenAsync(
+                new TokenRequest
                 {
-                    { "scope", "api1" },
-                    { "outcome", "succeed"}
+                    Address = TokenEndpoint,
+                    GrantType = "custom",
+                    ClientId = "client.custom",
+                    ClientSecret = "secret",
+                    Parameters = { { "scope", "api1" }, { "outcome", "succeed" } }
                 }
-            });
-
+            );
 
             // raw fields
             var fields = GetFields(response);
@@ -192,14 +185,12 @@ namespace IdentityServer.IntegrationTests.Clients
             responseDto.nested.string_value.Should().Be(dto.nested.string_value);
             responseDto.nested.int_value.Should().Be(dto.nested.int_value);
 
-
             // token client response
             response.IsError.Should().Be(false);
             response.ExpiresIn.Should().Be(3600);
             response.TokenType.Should().Be("Bearer");
             response.IdentityToken.Should().BeNull();
             response.RefreshToken.Should().BeNull();
-
 
             // token content
             var payload = GetPayload(response);
@@ -217,27 +208,21 @@ namespace IdentityServer.IntegrationTests.Clients
             var amr = payload["amr"] as JArray;
             amr.Count().Should().Be(1);
             amr.First().ToString().Should().Be("custom");
-
         }
 
         [Fact]
         public async Task Extension_grant_failure_should_return_custom_error_response()
         {
-            var response = await _client.RequestTokenAsync(new TokenRequest
-            {
-                Address = TokenEndpoint,
-                GrantType = "custom",
-
-                ClientId = "client.custom",
-                ClientSecret = "secret",
-
-                Parameters =
+            var response = await _client.RequestTokenAsync(
+                new TokenRequest
                 {
-                    { "scope", "api1" },
-                    { "outcome", "fail"}
+                    Address = TokenEndpoint,
+                    GrantType = "custom",
+                    ClientId = "client.custom",
+                    ClientSecret = "secret",
+                    Parameters = { { "scope", "api1" }, { "outcome", "fail" } }
                 }
-            });
-
+            );
 
             // raw fields
             var fields = GetFields(response);
@@ -263,7 +248,6 @@ namespace IdentityServer.IntegrationTests.Clients
             responseDto.nested.string_value.Should().Be(dto.nested.string_value);
             responseDto.nested.int_value.Should().Be(dto.nested.int_value);
 
-
             // token client response
             response.IsError.Should().Be(true);
             response.Error.Should().Be("invalid_grant");
@@ -281,7 +265,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
         private Dictionary<string, object> GetFields(TokenResponse response)
         {
-            var jsonRaw = response.Json.GetRawText();
+            var jsonRaw = response.Json?.GetRawText();
             return JObject.Parse(jsonRaw).ToObject<Dictionary<string, object>>();
         }
 
@@ -289,7 +273,8 @@ namespace IdentityServer.IntegrationTests.Clients
         {
             var token = response.AccessToken.Split('.').Skip(1).Take(1).First();
             var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(
-                Encoding.UTF8.GetString(Base64Url.Decode(token)));
+                Encoding.UTF8.GetString(Base64Url.Decode(token))
+            );
 
             return dictionary;
         }

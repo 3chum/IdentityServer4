@@ -29,8 +29,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
         public UserInfoEndpointClient()
         {
-            var builder = new WebHostBuilder()
-                .UseStartup<Startup>();
+            var builder = new WebHostBuilder().UseStartup<Startup>();
             var server = new TestServer(builder);
 
             _client = server.CreateClient();
@@ -39,80 +38,84 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Valid_client_with_GET_should_succeed()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                Scope = "openid email api1",
-                UserName = "bob",
-                Password = "bob"
-            });
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    Scope = "openid email api1",
+                    UserName = "bob",
+                    Password = "bob"
+                }
+            );
 
             response.IsError.Should().BeFalse();
 
-            var userInfo = await _client.GetUserInfoAsync(new UserInfoRequest
-            {
-                Address = UserInfoEndpoint,
-                Token = response.AccessToken
-            });
+            var userInfo = await _client.GetUserInfoAsync(
+                new UserInfoRequest { Address = UserInfoEndpoint, Token = response.AccessToken }
+            );
 
             userInfo.IsError.Should().BeFalse();
             userInfo.Claims.Count().Should().Be(3);
 
             userInfo.Claims.Should().Contain(c => c.Type == "sub" && c.Value == "88421113");
-            userInfo.Claims.Should().Contain(c => c.Type == "email" && c.Value == "BobSmith@email.com");
+            userInfo.Claims
+                .Should()
+                .Contain(c => c.Type == "email" && c.Value == "BobSmith@email.com");
             userInfo.Claims.Should().Contain(c => c.Type == "email_verified" && c.Value == "true");
         }
 
         [Fact]
         public async Task Request_address_scope_should_return_expected_response()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                Scope = "openid address",
-                UserName = "bob",
-                Password = "bob"
-            });
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    Scope = "openid address",
+                    UserName = "bob",
+                    Password = "bob"
+                }
+            );
 
             response.IsError.Should().BeFalse();
 
-            var userInfo = await _client.GetUserInfoAsync(new UserInfoRequest
-            {
-                Address = UserInfoEndpoint,
-                Token = response.AccessToken
-            });
+            var userInfo = await _client.GetUserInfoAsync(
+                new UserInfoRequest { Address = UserInfoEndpoint, Token = response.AccessToken }
+            );
 
             userInfo.IsError.Should().BeFalse();
-            userInfo.Claims.First().Value.Should().Be("{ 'street_address': 'One Hacker Way', 'locality': 'Heidelberg', 'postal_code': 69118, 'country': 'Germany' }");
+            userInfo.Claims
+                .First()
+                .Value.Should()
+                .Be(
+                    "{ 'street_address': 'One Hacker Way', 'locality': 'Heidelberg', 'postal_code': 69118, 'country': 'Germany' }"
+                );
         }
 
         [Fact]
         public async Task Using_a_token_with_no_identity_scope_should_fail()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                Scope = "api1",
-                UserName = "bob",
-                Password = "bob"
-            });
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    Scope = "api1",
+                    UserName = "bob",
+                    Password = "bob"
+                }
+            );
 
             response.IsError.Should().BeFalse();
 
-            var userInfo = await _client.GetUserInfoAsync(new UserInfoRequest
-            {
-                Address = UserInfoEndpoint,
-                Token = response.AccessToken
-            });
+            var userInfo = await _client.GetUserInfoAsync(
+                new UserInfoRequest { Address = UserInfoEndpoint, Token = response.AccessToken }
+            );
 
             userInfo.IsError.Should().BeTrue();
             userInfo.HttpStatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -121,24 +124,23 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Using_a_token_with_an_identity_scope_but_no_openid_should_fail()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                Scope = "email api1",
-                UserName = "bob",
-                Password = "bob"
-            });
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    Scope = "email api1",
+                    UserName = "bob",
+                    Password = "bob"
+                }
+            );
 
             response.IsError.Should().BeFalse();
 
-            var userInfo = await _client.GetUserInfoAsync(new UserInfoRequest
-            {
-                Address = UserInfoEndpoint,
-                Token = response.AccessToken
-            });
+            var userInfo = await _client.GetUserInfoAsync(
+                new UserInfoRequest { Address = UserInfoEndpoint, Token = response.AccessToken }
+            );
 
             userInfo.IsError.Should().BeTrue();
             userInfo.HttpStatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -147,11 +149,9 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Invalid_token_should_fail()
         {
-            var userInfo = await _client.GetUserInfoAsync(new UserInfoRequest
-            {
-                Address = UserInfoEndpoint,
-                Token = "invalid"
-            });
+            var userInfo = await _client.GetUserInfoAsync(
+                new UserInfoRequest { Address = UserInfoEndpoint, Token = "invalid" }
+            );
 
             userInfo.IsError.Should().BeTrue();
             userInfo.HttpStatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -160,19 +160,20 @@ namespace IdentityServer.IntegrationTests.Clients
         [Fact]
         public async Task Complex_json_should_be_correct()
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                Scope = "openid email api1 api4.with.roles roles",
-                UserName = "bob",
-                Password = "bob"
-            });
+            var response = await _client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest
+                {
+                    Address = TokenEndpoint,
+                    ClientId = "roclient",
+                    ClientSecret = "secret",
+                    Scope = "openid email api1 api4.with.roles roles",
+                    UserName = "bob",
+                    Password = "bob"
+                }
+            );
 
             response.IsError.Should().BeFalse();
-            
+
             var payload = GetPayload(response);
 
             var scopes = ((JArray)payload["scope"]).Select(x => x.ToString()).ToArray();
@@ -188,13 +189,15 @@ namespace IdentityServer.IntegrationTests.Clients
             roles.Should().Contain("Geek");
             roles.Should().Contain("Developer");
 
-            var userInfo = await _client.GetUserInfoAsync(new UserInfoRequest
-            {
-                Address = UserInfoEndpoint,
-                Token = response.AccessToken
-            });
+            var userInfo = await _client.GetUserInfoAsync(
+                new UserInfoRequest { Address = UserInfoEndpoint, Token = response.AccessToken }
+            );
 
-            var stringRoles = userInfo.Json.GetProperty("role").EnumerateArray().Select(m => m.GetString()).ToArray();
+            var stringRoles = userInfo.Json
+                ?.GetProperty("role")
+                .EnumerateArray()
+                .Select(m => m.GetString())
+                .ToArray();
 
             stringRoles.Length.Should().Be(2);
             stringRoles.Should().Contain("Geek");
@@ -205,7 +208,8 @@ namespace IdentityServer.IntegrationTests.Clients
         {
             var token = response.AccessToken.Split('.').Skip(1).Take(1).First();
             var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(
-                Encoding.UTF8.GetString(Base64Url.Decode(token)));
+                Encoding.UTF8.GetString(Base64Url.Decode(token))
+            );
 
             return dictionary;
         }
