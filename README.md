@@ -1,7 +1,7 @@
 # Important update
 
 `
-Fork from IdentityServer/IdentityServer4 and add support net6.0
+Fork from IdentityServer/IdentityServer4 and add support net8.0
 `
 
 

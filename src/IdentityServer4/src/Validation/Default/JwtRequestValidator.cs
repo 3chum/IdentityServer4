@@ -207,7 +207,8 @@ namespace IdentityServer4.Validation
                             var type = value?.GetType()?.ToString();
                             if(
                                 "Microsoft.IdentityModel.Json.Linq.JObject" == type ||
-                                "Microsoft.IdentityModel.Json.Linq.JArray" == type
+                                "Microsoft.IdentityModel.Json.Linq.JArray" == type ||
+                                "System.Text.Json.JsonElement" == type
                             ) 
                                 payload.Add(key, value.ToString());
 
